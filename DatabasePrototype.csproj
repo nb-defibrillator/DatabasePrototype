@@ -58,6 +58,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="MainPage.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="MainPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3627" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />

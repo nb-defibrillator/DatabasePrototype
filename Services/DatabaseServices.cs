@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Services
+namespace DatabasePrototype
 {
     public class DatabaseService
     {
@@ -20,17 +20,17 @@ namespace Services
             _database = new SQLiteAsyncConnection(dbPath);
 
 
-            await _database.CreateTableAsync<DatabasePrototype.Models.DataItem>();
+            await _database.CreateTableAsync<DatabasePrototype.DataItem>();
         }
 
-        public async Task<List<DatabasePrototype.Models.DataItem>> GetItemsAsync()
+        public async Task<List<DatabasePrototype.DataItem>> GetItemsAsync()
         {
             await Initialize();
 
-            return await _database.Table<DatabasePrototype.Models.DataItem>().ToListAsync();
+            return await _database.Table<DatabasePrototype.DataItem>().ToListAsync();
         }
 
-        public async Task<int> SaveItemAsync(DatabasePrototype.Models.DataItem item)
+        public async Task<int> SaveItemAsync(DatabasePrototype.DataItem item)
         {
             await Initialize();
             item.LastUpdated = DateTime.Now;
