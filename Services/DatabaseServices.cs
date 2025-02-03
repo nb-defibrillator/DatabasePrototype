@@ -4,37 +4,63 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Android.App.LauncherActivity;
 
 
 namespace DatabasePrototype
 {
     public class DatabaseService
-    {
-        private SQLiteAsyncConnection _database;
 
+    {
+        private SQLiteAsyncConnection database;
+        private string dbPath;
         public async Task Initialize()
         {
-            if (_database != null) return;
+            if (database != null) return;
 
-            string dbPath = Path.Combine(FileSystem.AppDataDirectory, "localdb.db");
-            _database = new SQLiteAsyncConnection(dbPath);
+            dbPath = Path.Combine(FileSystem.AppDataDirectory, "localdb.db");
+            database = new SQLiteAsyncConnection(dbPath);
 
 
-            await _database.CreateTableAsync<DatabasePrototype.DataItem>();
+            await database.CreateTableAsync<DatabasePrototype.DataItem>();
         }
 
         public async Task<List<DatabasePrototype.DataItem>> GetItemsAsync()
         {
             await Initialize();
 
-            return await _database.Table<DatabasePrototype.DataItem>().ToListAsync();
+            return await database.Table<DatabasePrototype.DataItem>().ToListAsync();
         }
 
         public async Task<int> SaveItemAsync(DatabasePrototype.DataItem item)
         {
+            int update;
             await Initialize();
+            if (item.Id == 0)
+            {
+               update = await database.InsertAsync(item);
+            }
+            else
+            {
+                update = await database.UpdateAsync(item);
+            }
+            // After saving locally, sync with Google Drive
+            await SyncWithGoogleDrive();
             item.LastUpdated = DateTime.Now;
-            return await _database.InsertAsync(item);
+            return update;
         }
+        public async Task<List<DataItem>> GetItems()
+        {
+            // First sync with Google Drive to get latest
+            await SyncWithGoogleDrive();
+            return await database.Table<DataItem>().ToListAsync();
+        }
+
+        private async Task SyncWithGoogleDrive()
+        {
+            // This will be handled by GoogleDriveService
+            await GoogleDriveService.Instance.UploadDatabase(dbPath);
+        }
+
     }
 }
